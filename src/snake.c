@@ -1,13 +1,13 @@
 /*
- * The Snake Game - Created by 0quaaD
- * Starting to game:
- * $ make run FILE=snake
+  The Snake Game - Created by 0quaaD
+  Starting to game:
+  $ make run FILE=snake
 
- * Required libraries and programmes:
+  Required libraries and programmes:
 
- * 1) GCC - GNU C Compiler
- * 2) make - Needed for compiling the game
- * 3) raylib.h - Essential game engine library by Raylib on github
+  1) GCC       -       GNU C Compiler
+  2) make      -       Needed for compiling the game
+  3) raylib.h  -       Essential game engine library by Raylib on github
 
 */
 
@@ -23,8 +23,8 @@
 #define CELL_COUNT  25
 #define MAX_LENGTH 50
 
-Color light_green = {173, 204, 96,255}; // Background color
-Color dark_green = {43, 51, 24, 255}; // Snake color 
+Color light_green = {142, 185, 97, 255}; // Background color
+Color dark_green = DARKGREEN;            // Snake color 
 
 typedef struct {
   Vector2 pos;
@@ -134,7 +134,7 @@ void drawFood(Food *food) {
 int main(void) {
   srand(time(NULL));
   InitWindow(WIDTH, HEIGHT, "The Snake Game");
-  SetTargetFPS(120);
+  SetTargetFPS(60);
 
   Texture2D apple = LoadTexture("./src/assets/apple.jpg");
 
@@ -165,7 +165,7 @@ int main(void) {
 
     static int frame = 0;
     frame++;
-    if (frame >= 10) {
+    if (frame >= 5) {
       Vector2 newHead = {getHead(&snake).x + dir.x, getHead(&snake).y + dir.y};
       if (food.pos.x == newHead.x && food.pos.y == newHead.y) {
         pushHead(&snake, newHead);
