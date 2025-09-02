@@ -23,6 +23,6 @@ run: $(TARGET)
 	./$(TARGET)
 
 clean:
-	rm -rf $(BIN)/*
+	rm -rf $(BIN)
 
 .PHONY: all run clean
