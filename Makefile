@@ -8,7 +8,7 @@ RAYLIB_FLAGS = -lraylib -lm -lpthread -ldl -lGL -lrt -lX11
 SRC = src
 BIN = bin
 
-FILE ?= main
+FILE ?= snake
 TARGET = $(BIN)/$(FILE)
 
 all: $(TARGET)
@@ -16,8 +16,8 @@ all: $(TARGET)
 $(BIN):
 	mkdir -p $@
 
-$(BIN)/$(FILE): $(SRC)/$(FILE).c | $(BIN)
-	$(CC) $(CFLAGS) -o $@ $< $(RAYLIB_FLAGS)
+$(BIN)/$(FILE): $(SRC)/$(FILE).c $(SRC)/game.c | $(BIN)
+	$(CC) $(CFLAGS) -o $@ $^ $(RAYLIB_FLAGS)
 
 run: $(TARGET)
 	./$(TARGET)

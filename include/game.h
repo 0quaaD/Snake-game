@@ -3,6 +3,14 @@
 
 #include <raylib.h>
 
+#define WIDTH       810
+#define HEIGHT      810
+#define CELL_SIZE   30
+#define CELL_COUNT  25
+#define MAX_LENGTH 50
+
+extern Color light_green;
+extern Color dark_green;
 
 typedef struct {
   Vector2 pos;
