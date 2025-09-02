@@ -1,8 +1,4 @@
 #include "../include/game.h"
-#include <stdio.h>
-#include <raylib.h>
-#include <stdlib.h>
-#include <time.h>
 
 Color light_green = {142, 185, 97, 255}; // Background color
 Color dark_green = DARKGREEN;            // Snake color

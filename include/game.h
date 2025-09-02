@@ -2,6 +2,10 @@
 #define GAME_H
 
 #include <raylib.h>
+#include <stdio.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <time.h>
 
 #define WIDTH       810
 #define HEIGHT      810
