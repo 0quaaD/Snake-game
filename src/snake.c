@@ -20,6 +20,7 @@
 #define HEIGHT      810
 #define CELL_SIZE   30
 #define CELL_COUNT  25
+#define MAX_LENGTH 50
 
 Color light_green = {173, 204, 96,255}; // Background color
 Color dark_green = {43, 51, 24, 255}; // Snake color 
@@ -30,11 +31,64 @@ typedef struct {
 } Food;
 
 typedef struct {
+  Vector2 body[MAX_LENGTH];
+  int head;
+  int tail;
+  int size;  
+} Snake;
+
+typedef struct {
   int _limX, _limY;   // Top left
   int limX_, limY_;   // Top right
   int __limX, __limY; // Bottom left
   int limX__, limY__; //Bottom right
 } Border;
+
+void initSnake(Snake *snake, Vector2 startPos) {
+  snake->body[0] = startPos;
+  snake->head = 0;
+  snake->tail = 0;
+  snake->size = 1;
+}
+
+// Pushing head when snake moves
+void pushHead(Snake *snake, Vector2 newPos) {
+  if (snake->size >= MAX_LENGTH)
+    return;
+
+  snake->head = (snake->head + 1) % MAX_LENGTH;
+  snake->body[snake->head] = newPos;
+  snake->size++;
+}
+
+// Removing the tail when snake moves
+void popTail(Snake *snake) {
+  if (snake->size <= 1)
+    return;
+
+  snake->tail = (snake->tail + 1) % MAX_LENGTH;
+  snake->size--;
+}
+
+// Move snake
+void moveSnake(Snake *snake, Vector2 newPos) {
+  pushHead(snake, newPos);
+  popTail(snake);
+}
+
+// Growing Snake
+void growSnake(Snake *snake, Vector2 newPos) {
+  pushHead(snake,newPos);
+}
+
+void drawSnake(Snake *snake) {
+  for (int i = 0; i < snake->size; i++) {
+    int idx = (snake->tail + i) % MAX_LENGTH;
+    Rectangle rect = {snake->body[idx].x, snake->body[idx].y, CELL_SIZE,
+                      CELL_SIZE};
+    DrawRectangleRec(rect, dark_green);
+  }
+}
 
 void drawFood(Food *food) {
   Rectangle source = {0, 0, food->shape.width, food->shape.height};
@@ -72,6 +126,8 @@ void drawScore(char *score) {
   DrawText(score, 710, 10, 20, BLACK);
 }
 
+void updateSnake(Snake *snake, Vector2 dir) { return; }
+
 int main(void) {
   srand(time(NULL));
   InitWindow(WIDTH, HEIGHT, "The Snake Game");
@@ -79,14 +135,30 @@ int main(void) {
 
   Texture2D apple = LoadTexture("./src/assets/apple.jpg");
   Food food = {getRandomFood(), apple};
+  Snake snake;
+  Vector2 startPos = {6 * CELL_SIZE, 8 * CELL_SIZE};
+  initSnake(&snake, startPos);
   Border border = {
       30,         40,          // Top left
       WIDTH - 30, 40,          // Top right
       30,         HEIGHT - 40, // Bottom left
       WIDTH - 30, HEIGHT - 40  // Bottom right
   };
-  
+
+  Vector2 dir = {CELL_SIZE , 0};
   while (!WindowShouldClose()) {
+    // Update part
+
+    if (IsKeyDown(KEY_UP))
+      dir = (Vector2){CELL_SIZE, 0};
+    if (IsKeyDown(KEY_DOWN))
+      dir = (Vector2){-CELL_SIZE, 0};
+    if (IsKeyDown(KEY_LEFT))
+      dir = (Vector2){0, -CELL_SIZE};
+    if (IsKeyDown(KEY_RIGHT))
+      dir = (Vector2){0, CELL_SIZE};
+
+    // Draw part
     BeginDrawing();
     ClearBackground(light_green);
     drawBorder(&border, BLACK);
