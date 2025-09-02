@@ -11,6 +11,7 @@
 
 */
 
+#include <complex.h>
 #include <stdio.h>
 #include <raylib.h>
 #include <stdlib.h>
@@ -30,11 +31,15 @@ typedef struct {
   Texture2D shape;
 } Food;
 
+typedef struct Node {
+  Vector2 pos;
+  struct Node *next;
+  struct Node *prev;
+} Node;
 typedef struct {
-  Vector2 body[MAX_LENGTH];
-  int head;
-  int tail;
-  int size;  
+  Node *head;
+  Node *tail;
+  int size;
 } Snake;
 
 typedef struct {
@@ -45,67 +50,64 @@ typedef struct {
 } Border;
 
 void initSnake(Snake *snake, Vector2 startPos) {
-  snake->body[0] = startPos;
-  snake->head = 0;
-  snake->tail = 0;
+  Node *node = malloc(sizeof(Node));
+  node->pos = startPos;
+  node->next = node->prev = NULL;
+  snake->head = snake->tail = node;
   snake->size = 1;
 }
-
-// Pushing head when snake moves
 void pushHead(Snake *snake, Vector2 newPos) {
-  if (snake->size >= MAX_LENGTH)
-    return;
+  Node *newNode = malloc(sizeof(Node));
+  newNode->pos = newPos;
+  newNode->next = snake->head;
+  newNode->prev = NULL;
 
-  snake->head = (snake->head + 1) % MAX_LENGTH;
-  snake->body[snake->head] = newPos;
+  if (snake->head != NULL) {
+    snake->head->prev = newNode;
+  }
+
+  snake->head = newNode;
+  if (snake->tail == NULL)
+    snake->tail = newNode;
+
   snake->size++;
 }
 
-// Removing the tail when snake moves
 void popTail(Snake *snake) {
-  if (snake->size <= 1)
+  if (snake->tail == NULL)
     return;
 
-  snake->tail = (snake->tail + 1) % MAX_LENGTH;
+  Node *temp = snake->tail;
+  snake->tail = snake->tail->prev;
+  if (snake->tail != NULL) {
+    snake->tail->next = NULL;
+  } else {
+    snake->head = NULL;
+  }
+  free(temp);
   snake->size--;
 }
 
-// Move snake
-void moveSnake(Snake *snake, Vector2 newPos) {
-  pushHead(snake, newPos);
-  popTail(snake);
+Vector2 getHead(Snake *snake) {
+  if (!snake->head)
+    return (Vector2){0, 0};
+  return snake->head->pos;
 }
 
-// Growing Snake
-void growSnake(Snake *snake, Vector2 newPos) {
-  pushHead(snake,newPos);
-}
-
-void drawSnake(Snake *snake) {
-  for (int i = 0; i < snake->size; i++) {
-    int idx = (snake->tail + i) % MAX_LENGTH;
-    Rectangle rect = {snake->body[idx].x, snake->body[idx].y, CELL_SIZE,
-                      CELL_SIZE};
-    DrawRectangleRec(rect, dark_green);
+void drawSnake(Snake *snake, Color color) {
+  Node *curr = snake->head;
+  while (curr) {
+    Rectangle rect = {curr->pos.x, curr->pos.y, CELL_SIZE, CELL_SIZE};
+    DrawRectangleRounded(rect, 0.5, 6, color);
+    curr = curr->next;
   }
-}
-
-Vector2 getSnakeHead(Snake *snake) {
-  return snake->body[snake->head];
-}
-
-void drawFood(Food *food) {
-  Rectangle source = {0, 0, food->shape.width, food->shape.height};
-  Rectangle dest = {food->pos.x, food->pos.y, CELL_SIZE, CELL_SIZE};
-  Vector2 origin = {0, 0};
-  DrawTexturePro(food->shape, source, dest, origin, 0.0f, light_green);
 }
 
 Vector2 getRandomFood() {
   int randX = (rand() % (CELL_COUNT - 1));
   int randY = (rand() % (CELL_COUNT - 1));
 
-  Vector2 pos = {randX * CELL_SIZE + 30, randY * CELL_SIZE + 40};
+  Vector2 pos = {randX * CELL_SIZE, randY * CELL_SIZE};
   return pos;
 }
 
@@ -122,79 +124,72 @@ void drawBorder(Border *border, Color color) {
   DrawLine(border->limX_, border->limY_, border->limX__, border->limY__, color);  
 }
 
-// If snake doesn't eat the food. Do:
-void updateSnake(Snake *snake, Vector2 dir) {
-  Vector2 currHead = getSnakeHead(snake);
-  Vector2 newHead = {currHead.x + dir.x, currHead.y + dir.y};
-  pushHead(snake, newHead);
-}
-
-// If snake eats the food. Do:
-void updateSnakeGrow(Snake *snake, Vector2 dir) {
-  Vector2 currHead = getSnakeHead(snake);
-  Vector2 newHead = {currHead.x + dir.x, currHead.y + dir.y};
-  pushHead(snake, newHead);
+void drawFood(Food *food) {
+  Rectangle source = {0, 0, food->shape.width, food->shape.height};
+  Rectangle dest = {food->pos.x, food->pos.y, CELL_SIZE, CELL_SIZE};
+  Vector2 origin = {0, 0};
+  DrawTexturePro(food->shape, source, dest, origin, 0.0f, light_green);
 }
 
 int main(void) {
   srand(time(NULL));
   InitWindow(WIDTH, HEIGHT, "The Snake Game");
-  SetTargetFPS(60);
+  SetTargetFPS(120);
 
   Texture2D apple = LoadTexture("./src/assets/apple.jpg");
+
   Food food = {getRandomFood(), apple};
+
   Snake snake;
-  int score_val = 0;
   Vector2 startPos = {6 * CELL_SIZE, 8 * CELL_SIZE};
   initSnake(&snake, startPos);
+  Vector2 dir = {CELL_SIZE , 0};
+  
   Border border = {
       30,         40,          // Top left
       WIDTH - 30, 40,          // Top right
       30,         HEIGHT - 40, // Bottom left
       WIDTH - 30, HEIGHT - 40  // Bottom right
   };
-
-  Vector2 dir = {CELL_SIZE , 0};
+  int score_val = 0;
   while (!WindowShouldClose()) {
-    // Update part
+    // ===== Update part =====
     if (IsKeyDown(KEY_UP) && dir.y == 0)
-	dir = (Vector2){0, -CELL_SIZE};
+      dir = (Vector2){0, -CELL_SIZE};
     if (IsKeyDown(KEY_DOWN) && dir.y == 0)
-	dir = (Vector2){0, CELL_SIZE};
+      dir = (Vector2){0, CELL_SIZE};
     if (IsKeyDown(KEY_LEFT) && dir.x == 0)
-	dir = (Vector2){-CELL_SIZE, 0};
+      dir = (Vector2){-CELL_SIZE, 0};
     if (IsKeyDown(KEY_RIGHT) && dir.x == 0)
-	dir = (Vector2){CELL_SIZE, 0};
+      dir = (Vector2){CELL_SIZE, 0};
 
     static int frame = 0;
     frame++;
     if (frame >= 10) {
-      Vector2 newHead = {getSnakeHead(&snake).x + dir.x,
-                         getSnakeHead(&snake).y + dir.y};
+      Vector2 newHead = {getHead(&snake).x + dir.x, getHead(&snake).y + dir.y};
       if (food.pos.x == newHead.x && food.pos.y == newHead.y) {
-        updateSnakeGrow(&snake, dir);
-	score_val++;
+        pushHead(&snake, newHead);
+        score_val++;
 	food.pos = getRandomFood();
       } else {
-	updateSnake(&snake, dir);
+        pushHead(&snake, newHead);
+	popTail(&snake);
       }
       frame = 0;
     }
+    
     // ===== Draw part ======
     BeginDrawing();
     ClearBackground(light_green);
-
-    // Entity
+    
+    drawSnake(&snake, dark_green);
     drawBorder(&border, BLACK);
-    drawSnake(&snake);
     drawFood(&food);
     // Score
     char score[32];
     sprintf(score, "Score: %d", score_val);
     DrawText(score, 710,10,20, BLACK);
 
-    
- 
     //Draw fps value    
     char fps[32];
     drawFps(fps);
@@ -202,6 +197,12 @@ int main(void) {
   }
 
   // Free the memory before return 0
+  Node *curr = snake.head;
+  while (curr) {
+    Node *tmp = curr;
+    curr = curr->next;
+    free(tmp);
+  }
   UnloadTexture(apple); 
   CloseWindow();
   return 0;  
