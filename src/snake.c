@@ -1,3 +1,16 @@
+/*
+ * The Snake Game - Created by 0quaaD
+ * Starting to game:
+ * $ make run FILE=snake
+
+ * Required libraries and programmes:
+
+ * 1) GCC - GNU C Compiler
+ * 2) make - Needed for compiling the game
+ * 3) raylib.h - Essential game engine library by Raylib on github
+
+*/
+
 #include <stdio.h>
 #include <raylib.h>
 #include <stdlib.h>
