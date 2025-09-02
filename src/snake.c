@@ -90,6 +90,10 @@ void drawSnake(Snake *snake) {
   }
 }
 
+Vector2 getSnakeHead(Snake *snake) {
+  return snake->body[snake->head];
+}
+
 void drawFood(Food *food) {
   Rectangle source = {0, 0, food->shape.width, food->shape.height};
   Rectangle dest = {food->pos.x, food->pos.y, CELL_SIZE, CELL_SIZE};
@@ -110,9 +114,6 @@ void drawFps(char *fps) {
   DrawText(fps, 10, 10, 20, BLACK);
 }
 
-int get_score() {
-  return 0;  
-}
 
 void drawBorder(Border *border, Color color) {
   DrawLine(border->_limX, border->_limY, border->limX_, border->limY_, color);
@@ -121,12 +122,19 @@ void drawBorder(Border *border, Color color) {
   DrawLine(border->limX_, border->limY_, border->limX__, border->limY__, color);  
 }
 
-void drawScore(char *score) {
-  sprintf(score, "Score: %d", get_score());
-  DrawText(score, 710, 10, 20, BLACK);
+// If snake doesn't eat the food. Do:
+void updateSnake(Snake *snake, Vector2 dir) {
+  Vector2 currHead = getSnakeHead(snake);
+  Vector2 newHead = {currHead.x + dir.x, currHead.y + dir.y};
+  pushHead(snake, newHead);
 }
 
-void updateSnake(Snake *snake, Vector2 dir) { return; }
+// If snake eats the food. Do:
+void updateSnakeGrow(Snake *snake, Vector2 dir) {
+  Vector2 currHead = getSnakeHead(snake);
+  Vector2 newHead = {currHead.x + dir.x, currHead.y + dir.y};
+  pushHead(snake, newHead);
+}
 
 int main(void) {
   srand(time(NULL));
@@ -136,6 +144,7 @@ int main(void) {
   Texture2D apple = LoadTexture("./src/assets/apple.jpg");
   Food food = {getRandomFood(), apple};
   Snake snake;
+  int score_val = 0;
   Vector2 startPos = {6 * CELL_SIZE, 8 * CELL_SIZE};
   initSnake(&snake, startPos);
   Border border = {
@@ -148,24 +157,43 @@ int main(void) {
   Vector2 dir = {CELL_SIZE , 0};
   while (!WindowShouldClose()) {
     // Update part
+    if (IsKeyDown(KEY_UP) && dir.y == 0)
+	dir = (Vector2){0, -CELL_SIZE};
+    if (IsKeyDown(KEY_DOWN) && dir.y == 0)
+	dir = (Vector2){0, CELL_SIZE};
+    if (IsKeyDown(KEY_LEFT) && dir.x == 0)
+	dir = (Vector2){-CELL_SIZE, 0};
+    if (IsKeyDown(KEY_RIGHT) && dir.x == 0)
+	dir = (Vector2){CELL_SIZE, 0};
 
-    if (IsKeyDown(KEY_UP))
-      dir = (Vector2){CELL_SIZE, 0};
-    if (IsKeyDown(KEY_DOWN))
-      dir = (Vector2){-CELL_SIZE, 0};
-    if (IsKeyDown(KEY_LEFT))
-      dir = (Vector2){0, -CELL_SIZE};
-    if (IsKeyDown(KEY_RIGHT))
-      dir = (Vector2){0, CELL_SIZE};
-
-    // Draw part
+    static int frame = 0;
+    frame++;
+    if (frame >= 10) {
+      Vector2 newHead = {getSnakeHead(&snake).x + dir.x,
+                         getSnakeHead(&snake).y + dir.y};
+      if (food.pos.x == newHead.x && food.pos.y == newHead.y) {
+        updateSnakeGrow(&snake, dir);
+	score_val++;
+	food.pos = getRandomFood();
+      } else {
+	updateSnake(&snake, dir);
+      }
+      frame = 0;
+    }
+    // ===== Draw part ======
     BeginDrawing();
     ClearBackground(light_green);
-    drawBorder(&border, BLACK);
-    char score[32];
-    drawScore(score);
 
+    // Entity
+    drawBorder(&border, BLACK);
+    drawSnake(&snake);
     drawFood(&food);
+    // Score
+    char score[32];
+    sprintf(score, "Score: %d", score_val);
+    DrawText(score, 710,10,20, BLACK);
+
+    
  
     //Draw fps value    
     char fps[32];
