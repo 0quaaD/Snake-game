@@ -14,10 +14,30 @@ typedef struct Node {
   struct Node *next;
   struct Node *prev;
 } Node;
+
 typedef struct {
   Node *head;
   Node *tail;
   int size;
 } Snake;
+
+typedef struct {
+  int _limX, _limY;   // Top left
+  int limX_, limY_;   // Top right
+  int __limX, __limY; // Bottom left
+  int limX__, limY__; //Bottom right
+} Border;
+
+void initSnake(Snake *snake, Vector2 startPos);
+void pushHead(Snake *snake, Vector2 newPos);
+void popTail(Snake *snake);
+void drawSnake(Snake *snake, Color color);
+void drawFps(char *fps);
+void drawBorder(Border *border, Color color);
+void drawFood(Food *food);
+
+
+Vector2 getHead(Snake *snake);
+Vector2 getRandomFood();
 
 #endif

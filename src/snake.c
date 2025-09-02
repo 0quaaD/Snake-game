@@ -26,14 +26,6 @@
 Color light_green = {142, 185, 97, 255}; // Background color
 Color dark_green = DARKGREEN;            // Snake color 
 
-
-typedef struct {
-  int _limX, _limY;   // Top left
-  int limX_, limY_;   // Top right
-  int __limX, __limY; // Bottom left
-  int limX__, limY__; //Bottom right
-} Border;
-
 void initSnake(Snake *snake, Vector2 startPos) {
   Node *node = malloc(sizeof(Node));
   node->pos = startPos;
