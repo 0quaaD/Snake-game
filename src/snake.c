@@ -11,11 +11,11 @@
 
 */
 
-#include <complex.h>
 #include <stdio.h>
 #include <raylib.h>
 #include <stdlib.h>
 #include <time.h>
+#include "../include/game.h"
 
 #define WIDTH       810
 #define HEIGHT      810
@@ -26,21 +26,6 @@
 Color light_green = {142, 185, 97, 255}; // Background color
 Color dark_green = DARKGREEN;            // Snake color 
 
-typedef struct {
-  Vector2 pos;
-  Texture2D shape;
-} Food;
-
-typedef struct Node {
-  Vector2 pos;
-  struct Node *next;
-  struct Node *prev;
-} Node;
-typedef struct {
-  Node *head;
-  Node *tail;
-  int size;
-} Snake;
 
 typedef struct {
   int _limX, _limY;   // Top left
