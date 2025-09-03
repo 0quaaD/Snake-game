@@ -7,8 +7,8 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define WIDTH       810
-#define HEIGHT      810
+#define WIDTH       850
+#define HEIGHT      850
 #define CELL_SIZE   30
 #define CELL_COUNT  25
 #define MAX_LENGTH 50
@@ -53,6 +53,7 @@ void drawFps(char *fps);
 void drawBorder(Border *border, Color color);
 void drawFood(Food *food);
 void drawGameOver(int score, float playtime);
+void updateSnake(Snake *snake, Border *border);
 
 bool isFoodOnSnake(Vector2 foodPos, Snake *snake);
 bool isGameOver(Snake *snake);

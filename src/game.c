@@ -1,4 +1,4 @@
-#include "../include/game.h"
+#include "game.h"
 
 Color light_green = {142, 185, 97, 255}; // Background color
 Color dark_green = DARKGREEN;            // Snake color
@@ -57,6 +57,20 @@ void drawSnake(Snake *snake, Color color) {
     DrawRectangleRounded(rect, 0.5, 6, color);
     curr = curr->next;
   }
+}
+
+void updateSnake(Snake *snake, Border *border){
+  if(snake->head->pos.x < border->_limX) // Update left border collision
+    snake->head->pos.x = (border->limX_ / CELL_SIZE - 1) * CELL_SIZE;
+
+  else if(snake->head->pos.x > border->limX_)
+    snake->head->pos.x = (border->_limX / CELL_SIZE + 1) * CELL_SIZE;
+
+  else if(snake->head->pos.y < border->_limY)
+    snake->head->pos.y = (border->limY__ / CELL_SIZE - 1) * CELL_SIZE;
+
+  else if(snake->head->pos.y > border->limY__)
+    snake->head->pos.y = (border->_limY / CELL_SIZE + 1) * CELL_SIZE;
 }
 
 Vector2 getRandomFood(Border *border) {
@@ -135,7 +149,7 @@ void drawGameOver(int score, float playtime){
   int timeWidth = MeasureText(timeText, 30);
   DrawText(timeText, (WIDTH - timeWidth) / 2, HEIGHT / 2 + 20, 30, RAYWHITE);
 
-  const char *exitText = "Press ESC or click to 'x' on top right corner of game window to EXIT.";
+  const char *exitText = "Press ESC click to exit or SPACE to restart the game";
   int exitWidth = MeasureText(exitText, 20);
   DrawText(exitText, (WIDTH - exitWidth) / 2, HEIGHT / 2 + 80, 20, LIGHTGRAY);
 }
