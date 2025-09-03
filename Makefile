@@ -8,7 +8,7 @@ RAYLIB_FLAGS = -lraylib -lm -lpthread -ldl -lGL -lrt -lX11
 SRC = src
 BIN = bin
 
-FILE ?= snake
+FILE ?= main
 TARGET = $(BIN)/$(FILE)
 
 all: $(TARGET)
