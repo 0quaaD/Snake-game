@@ -43,6 +43,7 @@ void popTail(Snake *snake) {
   snake->size--;
 }
 
+
 Vector2 getHead(Snake *snake) {
   if (!snake->head)
     return (Vector2){0, 0};
@@ -58,10 +59,15 @@ void drawSnake(Snake *snake, Color color) {
   }
 }
 
-Vector2 getRandomFood() {
-  int randX = (rand() % (CELL_COUNT - 1));
-  int randY = (rand() % (CELL_COUNT - 1));
-
+Vector2 getRandomFood(Border *border) {
+  int minCellX = border->_limX / CELL_SIZE + 1;      // Start after left border
+  int maxCellX = border->limX_ / CELL_SIZE - 1;      // End before right border
+  int minCellY = border->_limY / CELL_SIZE + 1;      // Start after top border  
+  int maxCellY = border->limY__ / CELL_SIZE - 1;     // End before bottom border
+  
+  int randX = GetRandomValue(minCellX, maxCellX);
+  int randY = GetRandomValue(minCellY, maxCellY);
+  
   Vector2 pos = {randX * CELL_SIZE, randY * CELL_SIZE};
   return pos;
 }
@@ -71,6 +77,27 @@ void drawFps(char *fps) {
   DrawText(fps, 10, 10, 20, BLACK);
 }
 
+bool isFoodOnSnake(Vector2 foodPos, Snake *snake){
+  Node *curr = snake->head;
+  while(curr){
+    if(curr->pos.x == foodPos.x && curr->pos.y == foodPos.y)
+      return true;
+    curr = curr->next;
+  }
+  return false;
+}
+
+bool isGameOver(Snake *snake){
+  if(snake->size < 4) return false;
+  Vector2 head = snake->head->pos;
+  Node *curr = snake->head->next;
+  while(curr){
+    if(curr->pos.x == head.x && curr->pos.y == head.y)
+      return true;
+    curr = curr->next;
+  }
+  return false;
+}
 
 void drawBorder(Border *border, Color color) {
   DrawLine(border->_limX, border->_limY, border->limX_, border->limY_, color);
@@ -84,4 +111,31 @@ void drawFood(Food *food) {
   Rectangle dest = {food->pos.x, food->pos.y, CELL_SIZE, CELL_SIZE};
   Vector2 origin = {0, 0};
   DrawTexturePro(food->shape, source, dest, origin, 0.0f, light_green);
+}
+
+void drawGameOver(int score, float playtime){
+  DrawRectangle(0, 0, WIDTH, HEIGHT, (Color){0,0,0,150});
+
+  const char *game_over_text = "GAME OVER";
+  int gameOverWidth = MeasureText(game_over_text, 60);
+
+  DrawText(game_over_text, (WIDTH - gameOverWidth) / 2, HEIGHT / 2 -100, 60, RED);
+
+  char score_text[64];
+  sprintf(score_text, "Final score: %d", score);
+  int scoreWidth = MeasureText(score_text, 30);
+
+  DrawText(score_text, (WIDTH - scoreWidth) / 2, HEIGHT / 2 - 20, 30, RAYWHITE);
+
+  int minut = (int)playtime / 60;
+  int sec = (int)playtime % 60;
+
+  char timeText[64];
+  sprintf(timeText, "Time played: %02d:%02d", minut, sec);
+  int timeWidth = MeasureText(timeText, 30);
+  DrawText(timeText, (WIDTH - timeWidth) / 2, HEIGHT / 2 + 20, 30, RAYWHITE);
+
+  const char *exitText = "Press ESC or click to 'x' on top right corner of game window to EXIT.";
+  int exitWidth = MeasureText(exitText, 20);
+  DrawText(exitText, (WIDTH - exitWidth) / 2, HEIGHT / 2 + 80, 20, LIGHTGRAY);
 }
