@@ -23,7 +23,6 @@ int main(void) {
 
     Texture2D apple = LoadTexture("./src/assets/apple.jpg");
 
-    // Game state variables
     GameState gameState = PLAYING;
     float startTime = GetTime();
     float playTime = 0.0f;
@@ -45,7 +44,6 @@ int main(void) {
 
     while (!WindowShouldClose()) {
         if (gameState == PLAYING) {
-            // Update play time
             playTime = GetTime() - startTime;
             
             // Input handling
@@ -70,7 +68,6 @@ int main(void) {
                 if (isGameOver(&snake)) {
                     gameState = GAME_OVER;
                 } else {
-                    // Check food collision
                     if (food.pos.x == newHead.x && food.pos.y == newHead.y) {
                         PlaySound(snake_eating);
                         score_val++;
@@ -82,12 +79,11 @@ int main(void) {
                 frame = 0;
             }
         } else if (gameState == GAME_OVER) {
-            // Game over input handling
             if (IsKeyPressed(KEY_SPACE)) {
-                // Restart game
+                // RESTART GAME
                 gameState = PLAYING;
                 
-                // Reset snake
+                // RESET 
                 Node *curr = snake.head;
                 while (curr) {
                     Node *tmp = curr;
@@ -95,7 +91,7 @@ int main(void) {
                     free(tmp);
                 }
                 
-                // Reinitialize everything
+                // REINIT
                 initSnake(&snake, startPos);
                 dir = (Vector2){CELL_SIZE, 0};
                 food.pos = getRandomFood(&border);
@@ -123,12 +119,9 @@ int main(void) {
             char fps[32];
             drawFps(fps);
         } else if (gameState == GAME_OVER) {
-            // Still draw the game in background (optional)
             drawSnake(&snake, dark_green);
             drawBorder(&border, BLACK);
             drawFood(&food);
-            
-            // Draw game over screen
             drawGameOver(score_val, playTime);
         }
         
