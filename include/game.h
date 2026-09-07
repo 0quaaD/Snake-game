@@ -11,7 +11,7 @@
 #define HEIGHT      850
 #define CELL_SIZE   30
 #define CELL_COUNT  25
-#define MAX_LENGTH 50
+#define MAX_LENGTH  50
 
 extern Color light_green;
 extern Color dark_green;
