@@ -27,11 +27,12 @@ int main(void) {
     float startTime = GetTime();
     float playTime = 0.0f;
 
+	const int reserved = 50;
     Border border = {
-        50,         50,          // Top left
-        WIDTH - 50, 50,          // Top right
-        50,         HEIGHT - 50, // Bottom left
-        WIDTH - 50, HEIGHT - 50  // Bottom right
+        reserved,         reserved,          // Top left
+        WIDTH - reserved, reserved,          // Top right
+        reserved,         HEIGHT - reserved, // Bottom left
+        WIDTH - reserved, HEIGHT - reserved  // Bottom right
     };
 
     // Initialize game
